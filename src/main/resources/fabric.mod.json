@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "refinedstorageaddons",
+  "version": "${version}",
+  "name": "Refined Storage Addons",
+  "description": "An addon mod for Refined Storage",
+  "authors": ["Refined Mods"],
+  "contact": {
+    "homepage": "https://refinedmods.com/refined-storage-addons",
+    "issues": "https://github.com/refinedmods/refinedstorageaddons/issues",
+    "sources": "https://github.com/refinedmods/refinedstorageaddons"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.refinedmods.refinedstorageaddons.fabric.RSAddonsFabric"],
+    "client": ["com.refinedmods.refinedstorageaddons.fabric.RSAddonsFabricClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": ">=0.92.12",
+    "refinedstorage": ">=1.12.4-fabric.1"
+  }
+}

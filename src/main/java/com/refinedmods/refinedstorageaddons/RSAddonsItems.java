@@ -1,11 +1,10 @@
 package com.refinedmods.refinedstorageaddons;
 
 import com.refinedmods.refinedstorageaddons.item.WirelessCraftingGridItem;
+import com.refinedmods.refinedstorage.registry.DeferredRegister;
+import com.refinedmods.refinedstorage.registry.ForgeRegistries;
+import com.refinedmods.refinedstorage.registry.RegistryObject;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 public final class RSAddonsItems {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, RSAddons.ID);
@@ -19,6 +18,6 @@ public final class RSAddonsItems {
     public static final RegistryObject<WirelessCraftingGridItem> CREATIVE_WIRELESS_CRAFTING_GRID;
 
     public static void register() {
-        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEMS.register();
     }
 }

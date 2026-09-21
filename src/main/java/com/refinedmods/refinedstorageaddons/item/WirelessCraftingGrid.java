@@ -13,7 +13,6 @@ import com.refinedmods.refinedstorageaddons.RSAddons;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -61,14 +60,14 @@ public class WirelessCraftingGrid extends WirelessGrid {
             super.setChanged();
             if (!queuedSave && server != null) {
                 queuedSave = true;
-                server.doRunTask(new TickTask(0, () -> {
+                server.execute(() -> {
                     if (!getStack().hasTag()) {
                         getStack().setTag(new CompoundTag());
                     }
 
                     StackUtils.writeItems(craftingContainer, 1, getStack().getTag());
                     queuedSave = false;
-                }));
+                });
             }
         }
     };

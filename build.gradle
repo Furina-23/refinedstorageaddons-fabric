@@ -1,35 +1,57 @@
-apply from: "https://raw.githubusercontent.com/refinedmods/refinedarchitect/v0.6.0/helper.gradle"
-
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/refinedmods/refinedstorage")
-        /* As of december 2021, GitHub packages requires authentication.
-           The password below is a personal access token that has read access to the Refined Mods repos.
-           It can be reused in other projects.
-           See: https://github.community/t/download-from-github-package-registry-without-authentication/14407/38 and
-                https://github.community/t/download-from-github-package-registry-without-authentication/14407/44
-         */
-        credentials {
-            username = "anything"
-            password = "\u0067hp_oGjcDFCn8jeTzIj4Ke9pLoEVtpnZMP4VQgaX"
-        }
-    }
+plugins {
+    id 'fabric-loom' version '1.6.12'
+    id 'maven-publish'
 }
 
 group = 'com.refinedmods'
+version = project.findProperty('mod_version') ?: '0.10.0-fabric.1'
 
-forgeProject("refinedstorageaddons")
+base {
+    archivesName = 'refinedstorageaddons'
+}
 
-archivesBaseName = 'refinedstorageaddons'
-
-enablePublishing()
-enableCurseForge(272302)
-enableModrinth("Z4Z5ccuT")
-enableJavadoc()
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+    mavenCentral()
+}
 
 dependencies {
-    compileOnly "com.refinedmods:refinedstorage:1.12.1"
-    runtimeOnly fg.deobf("com.refinedmods:refinedstorage:1.12.1") {
-        transitive false
+    minecraft 'com.mojang:minecraft:1.20.1'
+    mappings loom.officialMojangMappings()
+    modImplementation 'net.fabricmc:fabric-loader:0.19.5'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.92.12+1.20.1'
+    modImplementation files('../refinedstorage/build/libs/refinedstorage-1.12.4-fabric.1.jar')
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.compilerArgs.addAll(['-Xmaxerrs', '1000'])
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
+}
+
+jar {
+    from('LICENSE.md') {
+        rename { "${it}_refinedstorageaddons" }
+    }
+}
+
+publishing {
+    publications {
+        create('mavenJava', MavenPublication) {
+            from components.java
+        }
     }
 }

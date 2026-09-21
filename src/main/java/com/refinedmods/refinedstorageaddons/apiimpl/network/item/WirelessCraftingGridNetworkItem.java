@@ -5,7 +5,9 @@ import com.refinedmods.refinedstorage.api.network.item.INetworkItem;
 import com.refinedmods.refinedstorage.api.network.item.INetworkItemManager;
 import com.refinedmods.refinedstorage.api.network.security.Permission;
 import com.refinedmods.refinedstorage.apiimpl.API;
+import com.refinedmods.refinedstorage.energy.RSEnergyStorage;
 import com.refinedmods.refinedstorage.inventory.player.PlayerSlot;
+import com.refinedmods.refinedstorage.transfer.energy.IEnergyStorage;
 import com.refinedmods.refinedstorage.util.LevelUtils;
 import com.refinedmods.refinedstorageaddons.RSAddons;
 import com.refinedmods.refinedstorageaddons.apiimpl.network.grid.WirelessCraftingGridGridFactory;
@@ -14,8 +16,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.energy.IEnergyStorage;
 
 public class WirelessCraftingGridNetworkItem implements INetworkItem {
     private final INetworkItemManager handler;
@@ -37,7 +37,7 @@ public class WirelessCraftingGridNetworkItem implements INetworkItem {
 
     @Override
     public boolean onOpen(INetwork network) {
-        IEnergyStorage energy = stack.getCapability(ForgeCapabilities.ENERGY, null).orElse(null);
+        IEnergyStorage energy = RSEnergyStorage.ITEM.find(stack, null);
 
         if (RSAddons.SERVER_CONFIG.getWirelessCraftingGrid().getUseEnergy() &&
             ((WirelessCraftingGridItem) stack.getItem()).getType() != WirelessCraftingGridItem.Type.CREATIVE &&
@@ -64,17 +64,20 @@ public class WirelessCraftingGridNetworkItem implements INetworkItem {
     @Override
     public void drainEnergy(int energy) {
         if (RSAddons.SERVER_CONFIG.getWirelessCraftingGrid().getUseEnergy() && ((WirelessCraftingGridItem) stack.getItem()).getType() != WirelessCraftingGridItem.Type.CREATIVE) {
-            stack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyStorage -> {
+            IEnergyStorage energyStorage = RSEnergyStorage.ITEM.find(stack, null);
+            if (energyStorage != null) {
                 energyStorage.extractEnergy(energy, false);
 
                 if (energyStorage.getEnergyStored() <= 0) {
                     handler.close(player);
 
-                    player.closeContainer();
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        serverPlayer.closeContainer();
+                    }
 
                     sendOutOfEnergyMessage();
                 }
-            });
+            }
         }
     }
 
