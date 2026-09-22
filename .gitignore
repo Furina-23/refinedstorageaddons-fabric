@@ -13,4 +13,5 @@ run/
 *.iws
 .idea/
 out/
+/bin/
 logs/
