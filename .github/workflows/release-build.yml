@@ -1,0 +1,59 @@
+name: Build release
+
+on:
+  push:
+    tags:
+      - 'fabric-migration-*'
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag or commit to build and attach to a release
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out addon source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Check out Refined Storage dependency
+        uses: actions/checkout@v4
+        with:
+          repository: Furina-23/refinedstorage-fabric
+          ref: main
+          path: refinedstorage
+
+      - name: Make Gradle wrappers executable
+        run: |
+          chmod +x ./gradlew
+          chmod +x ./refinedstorage/gradlew
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Refined Storage dependency
+        run: ./refinedstorage/gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" build -x test -x integrationTest
+
+      - name: Build and test addon
+        run: ./gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" clean check build
+
+      - name: Attach JARs to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          files: build/libs/*.jar
+          fail_on_unmatched_files: true
