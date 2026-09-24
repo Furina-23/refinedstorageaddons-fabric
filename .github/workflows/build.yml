@@ -1,15 +1,53 @@
 name: Build
+
 on:
   push:
-    branches:
-      - develop
-      - main
   pull_request:
-    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    uses: refinedmods/refinedarchitect/.github/workflows/build.yml@v0.6.0
-    with:
-      mutation-testing: false
-      sonarqube: false
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out addon source
+        uses: actions/checkout@v4
+
+      - name: Check out Refined Storage dependency
+        uses: actions/checkout@v4
+        with:
+          repository: Furina-23/refinedstorage-fabric
+          ref: main
+          path: refinedstorage
+
+      - name: Make Gradle wrappers executable
+        run: |
+          chmod +x ./gradlew
+          chmod +x ./refinedstorage/gradlew
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Refined Storage dependency
+        run: ./refinedstorage/gradlew --no-daemon build -x test -x integrationTest
+
+      - name: Build and test addon
+        run: ./gradlew --no-daemon clean check build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: refinedstorageaddons-jars
+          path: build/libs/*.jar
+          if-no-files-found: error
