@@ -46,7 +46,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build Refined Storage dependency
-        run: ./refinedstorage/gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" build -x test -x integrationTest
+        working-directory: refinedstorage
+        run: ./gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" build -x test -x integrationTest
 
       - name: Build and test addon
         run: ./gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" clean check build
