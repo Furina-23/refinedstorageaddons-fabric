@@ -44,7 +44,7 @@ jobs:
         run: ./gradlew --no-daemon build -x test -x integrationTest
 
       - name: Build and test addon
-        run: ./gradlew --no-daemon clean check build
+        run: ./gradlew --no-daemon check build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

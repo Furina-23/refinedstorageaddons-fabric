@@ -50,7 +50,7 @@ jobs:
         run: ./gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" build -x test -x integrationTest
 
       - name: Build and test addon
-        run: ./gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" clean check build
+        run: ./gradlew --no-daemon -Dorg.gradle.java.home="$JAVA_HOME" check build
 
       - name: Attach JARs to GitHub release
         uses: softprops/action-gh-release@v2
